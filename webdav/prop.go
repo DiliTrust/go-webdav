@@ -151,9 +151,25 @@ var liveProps = map[xml.Name]struct {
 		dir: false,
 	},
 
-	// TODO: The lockdiscovery property requires LockSystem to list the
-	// active locks on a resource.
-	{Space: "DAV:", Local: "lockdiscovery"}: {},
+	// TODO: use LockSystem to list the actual locks on a resource.
+	// for now, this assumes that the resource is always locked, which is probably correct,
+	// since this element is generally returned when requesting a LOCK,
+	// meaning that either there wasn't one before and there is one now,
+	// or there already was an active lock and the LOCK request failed, but the file really is locked
+	// this is enough to prevent MS Word from reporting a locked file as available just seconds after opening it in read-only mode
+	{Space: "DAV:", Local: "lockdiscovery"}: {
+		findFn: func(ctx context.Context, fs FileSystem, ls LockSystem, s string, fi os.FileInfo) (string, error) {
+			// return a minimal inner XML
+			// 0 depth means that only the specified resource is locked
+			// missing optional elements include: <D:owner>, <D:locktoken>, <D:timeout>, and <D:lockroot>
+			return "<D:activelock>" +
+				"<D:locktype><D:write/></D:locktype>" +
+				"<D:lockscope><D:exclusive/></D:lockscope>" +
+				"<D:depth>0</D:depth>" +
+				"</D:activelock>", nil
+		},
+		dir: false,
+	},
 	{Space: "DAV:", Local: "supportedlock"}: {
 		findFn: findSupportedLock,
 		dir:    true,

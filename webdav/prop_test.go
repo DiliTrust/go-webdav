@@ -93,6 +93,7 @@ func TestMemPS(t *testing.T) {
 				{Space: "DAV:", Local: "getcontenttype"},
 				{Space: "DAV:", Local: "getetag"},
 				{Space: "DAV:", Local: "supportedlock"},
+				{Space: "DAV:", Local: "lockdiscovery"},
 			},
 		}},
 	}, {
@@ -143,6 +144,9 @@ func TestMemPS(t *testing.T) {
 				}, {
 					XMLName:  xml.Name{Space: "DAV:", Local: "supportedlock"},
 					InnerXML: []byte(lockEntry),
+				}, {
+					XMLName:  xml.Name{Space: "DAV:", Local: "lockdiscovery"},
+					InnerXML: []byte("<D:activelock><D:locktype><D:write/></D:locktype><D:lockscope><D:exclusive/></D:lockscope><D:depth>0</D:depth></D:activelock>"),
 				}},
 			}},
 		}, {
@@ -175,7 +179,11 @@ func TestMemPS(t *testing.T) {
 				}, {
 					XMLName:  xml.Name{Space: "DAV:", Local: "supportedlock"},
 					InnerXML: []byte(lockEntry),
-				}}}, {
+				}, {
+					XMLName:  xml.Name{Space: "DAV:", Local: "lockdiscovery"},
+					InnerXML: []byte("<D:activelock><D:locktype><D:write/></D:locktype><D:lockscope><D:exclusive/></D:lockscope><D:depth>0</D:depth></D:activelock>"),
+				}},
+			}, {
 				Status: http.StatusNotFound,
 				Props: []Property{{
 					XMLName: xml.Name{Space: "foo", Local: "bar"},
@@ -465,6 +473,7 @@ func TestMemPS(t *testing.T) {
 				{Space: "DAV:", Local: "getcontenttype"},
 				{Space: "DAV:", Local: "getetag"},
 				{Space: "DAV:", Local: "supportedlock"},
+				{Space: "DAV:", Local: "lockdiscovery"},
 				{Space: "foo", Local: "bar"},
 			},
 		}},
